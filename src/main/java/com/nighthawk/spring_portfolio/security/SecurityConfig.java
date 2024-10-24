@@ -55,7 +55,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/mvc/person/search/**").authenticated()
-                .requestMatchers("/mvc/person/create/**").authenticated()
+                .requestMatchers("/mvc/person/create/**").permitAll()
                 .requestMatchers("/mvc/person/read/**").authenticated()
                 .requestMatchers("/mvc/person/update/**").authenticated()
                 .requestMatchers("/mvc/person/delete/**").hasAuthority("ROLE_ADMIN")
