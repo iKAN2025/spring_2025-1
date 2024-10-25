@@ -71,6 +71,11 @@
                         <a th:href='@{/login}' class="link-dark">Login</a>
 
                     </div>
+
+                    <div class="px-3">
+                        <a th:href='@{/mvc/person/create}' class="link-dark">Sign Up</a>
+
+                    </div>
                 </th:block>
                 <!-- If the user is authenticated, display a dropdown with the user's username and roles, and a "Logout" link -->
                 <th:block sec:authorize="isAuthenticated()">
