@@ -41,7 +41,7 @@ public class PersonApiController {
      * Retrieves a Person entity by current user of JWT token.
      * @return A ResponseEntity containing the Person entity if found, or a NOT_FOUND status if not found.
      */
-    @GetMapping("/person")
+    @GetMapping("/person/get")
     public ResponseEntity<Person> getPerson(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();  // Email is mapped/unmapped to username for Spring Security
@@ -56,7 +56,12 @@ public class PersonApiController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
+
+    /**
+     * Retrieves all the Person entities in the database, people
+     * @return A ResponseEntity containing a list for Person entities 
+     */
+
     /**
      * Retrieves all the Person entities in the database, people
      * @return A ResponseEntity containing a list for Person entities 
@@ -119,7 +124,7 @@ public class PersonApiController {
      * @param personDto
      * @return A ResponseEntity containing a success message if the Person entity is created, or a BAD_REQUEST status if not created.
      */
-    @PostMapping("/person")
+    @PostMapping("/person/get")
     public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
         // Validate dob input
         Date dob;
@@ -135,7 +140,10 @@ public class PersonApiController {
         return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/person/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+
+
+
+    @PutMapping(value = "/person/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> updatePerson(Authentication authentication, @RequestBody final PersonDto personDto) {
         // Get the email of the current user from the authentication context
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
