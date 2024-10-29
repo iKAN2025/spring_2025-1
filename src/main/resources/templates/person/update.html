@@ -77,6 +77,16 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Save</button>
                     </form>
+                    <div class="form-group mb-2 mr-sm-2">
+                        <label for="kasmServerNeeded">Kasm Server Needed:</label>
+                        <input type="checkbox" th:field="*{kasmServerNeeded}" id="kasmServerNeeded">
+                        <small th:if="${#fields.hasErrors('kasmServerNeeded')}" th:errors="*{kasmServerNeeded}">Kasm Server Error</small>
+                    </div>
+                    <label for="pfp">Profile Picture URL:</label>
+                        <input type="text" th:field="*{pfp}" id="pfp" placeholder="Enter profile picture URL">
+                        <small th:if="${#fields.hasErrors('pfp')}" th:errors="*{pfp}">Profile Picture Error</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
                 </div>
             </div>
         </div>
