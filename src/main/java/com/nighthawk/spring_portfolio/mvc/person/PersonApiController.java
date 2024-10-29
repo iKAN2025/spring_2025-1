@@ -63,9 +63,7 @@ public class PersonApiController {
      */
     @GetMapping("/people")
     public ResponseEntity<List<Person>> getPeople() {
-        List<Person> people = repository.findAllByOrderByNameAsc();
-        ResponseEntity<List<Person>> responseEntity = new ResponseEntity<>(people, HttpStatus.OK);
-        return responseEntity;
+        return new ResponseEntity<>( repository.findAllByOrderByNameAsc(), HttpStatus.OK);
     }
 
     /**
@@ -112,6 +110,8 @@ public class PersonApiController {
         private String password;
         private String name;
         private String dob;
+        private String pfp;
+        private Boolean kasmServerNeeded; 
     }
 
     /**
@@ -129,10 +129,45 @@ public class PersonApiController {
             return new ResponseEntity<>(personDto.getDob() + " error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
         }
         // A person object WITHOUT ID will create a new record in the database
-        Person person = new Person(personDto.getEmail(), personDto.getPassword(), personDto.getName(), dob, personDetailsService.findRole("USER"));
+        Person person = new Person(personDto.getEmail(), personDto.getPassword(), personDto.getName(), dob, "USER", true, personDetailsService.findRole("USER"));
+
         personDetailsService.save(person);
         return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
     }
+
+    @PutMapping(value = "/person/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updatePerson(Authentication authentication, @RequestBody final PersonDto personDto) {
+        // Get the email of the current user from the authentication context
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername(); // Assuming email is used as the username in Spring Security
+
+        // Find the person by email
+        Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
+        if (optional.isPresent()) { // Person found
+            Person existingPerson = optional.get();
+
+            // Update existing person's details
+            existingPerson.setEmail(personDto.getEmail());
+            existingPerson.setPassword(personDto.getPassword());
+            existingPerson.setName(personDto.getName());
+            existingPerson.setPfp(personDto.getPfp());
+            existingPerson.setKasmServerNeeded(personDto.getKasmServerNeeded());
+
+            // Save the updated person back to the repository
+            repository.save(existingPerson);
+
+            // Return the updated person entity
+            return new ResponseEntity<>(existingPerson, HttpStatus.OK);
+        }
+
+        // Return NOT_FOUND if person not found
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+
+
+
+
 
     /**
      * Search for a Person entity by name or email.
@@ -216,4 +251,33 @@ public class PersonApiController {
         // return Bad ID
         return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
     }
+
+    @PutMapping("/person/{id}")
+    public ResponseEntity<Object> updatePerson(@PathVariable long id, @RequestBody PersonDto personDto) {
+        Optional<Person> optional = repository.findById(id);
+        if (optional.isPresent()) {  // If the person with the given ID exists
+            Person existingPerson = optional.get();
+
+            // Update the existing person's details
+            existingPerson.setEmail(personDto.getEmail());
+            existingPerson.setPassword(personDto.getPassword());
+            existingPerson.setName(personDto.getName());
+            
+            // Optional: Update other fields if they exist in Person
+            existingPerson.setPfp(personDto.getPfp());
+            existingPerson.setKasmServerNeeded(personDto.getKasmServerNeeded());
+
+            // Save the updated person back to the repository
+            repository.save(existingPerson);
+
+            // Return the updated person entity
+            return new ResponseEntity<>(existingPerson, HttpStatus.OK);
+        }
+
+        // Return NOT_FOUND if the person with the given ID does not exist
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+
+
+
 }
