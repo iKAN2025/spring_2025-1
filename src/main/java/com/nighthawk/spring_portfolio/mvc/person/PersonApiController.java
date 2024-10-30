@@ -143,34 +143,49 @@ public class PersonApiController {
 
 
 
-    @PutMapping(value = "/person/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updatePerson(Authentication authentication, @RequestBody final PersonDto personDto) {
-        // Get the email of the current user from the authentication context
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername(); // Assuming email is used as the username in Spring Security
 
-        // Find the person by email
-        Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
-        if (optional.isPresent()) { // Person found
-            Person existingPerson = optional.get();
 
-            // Update existing person's details
+@PutMapping(value = "/person/update", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Object> updatePerson(Authentication authentication, @RequestBody final PersonDto personDto) {
+    // Get the email of the current user from the authentication context
+    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    String email = userDetails.getUsername(); // Assuming email is used as the username in Spring Security
+
+    // Find the person by email
+    Optional<Person> optionalPerson = Optional.ofNullable(repository.findByEmail(email));
+    if (optionalPerson.isPresent()) {
+        Person existingPerson = optionalPerson.get();
+
+        // Update fields only if they're provided in personDto
+        if (personDto.getEmail() != null) {
             existingPerson.setEmail(personDto.getEmail());
-            existingPerson.setPassword(personDto.getPassword());
+        }
+        if (personDto.getPassword() != null) {
+            existingPerson.setPassword(personDto.getPassword()); // Ensure password encoding
+        }
+        if (personDto.getName() != null) {
             existingPerson.setName(personDto.getName());
+        }
+        if (personDto.getPfp() != null) {
             existingPerson.setPfp(personDto.getPfp());
+        }
+        if (personDto.getKasmServerNeeded() != null) {
             existingPerson.setKasmServerNeeded(personDto.getKasmServerNeeded());
-
-            // Save the updated person back to the repository
-            repository.save(existingPerson);
-
-            // Return the updated person entity
-            return new ResponseEntity<>(existingPerson, HttpStatus.OK);
         }
 
-        // Return NOT_FOUND if person not found
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        // Save the updated person back to the repository
+        Person updatedPerson = repository.save(existingPerson);
+
+        // Return the updated person entity
+        return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
     }
+
+    // Return NOT_FOUND if person not found
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+
+
+
 
 
 
@@ -285,6 +300,8 @@ public class PersonApiController {
         // Return NOT_FOUND if the person with the given ID does not exist
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 }
+
+
 
 
 
