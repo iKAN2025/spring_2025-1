@@ -124,7 +124,7 @@ public class PersonApiController {
      * @param personDto
      * @return A ResponseEntity containing a success message if the Person entity is created, or a BAD_REQUEST status if not created.
      */
-    @PostMapping("/person/")
+    @PostMapping("/person/create")
     public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
         // Validate dob input
         Date dob;
