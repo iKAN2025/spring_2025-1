@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-ExposedHeaders", "*", "Authorization"))
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Headers", "Content-Type", "Authorization", "x-csrf-token"))
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-MaxAge", "600"))
-                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Methods", "POST", "GET", "DELETE", "OPTIONS", "HEAD"))
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Methods", "POST", "PUT", "GET", "DELETE", "OPTIONS", "HEAD"))
             )
 			.exceptionHandling(exceptions -> exceptions
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
