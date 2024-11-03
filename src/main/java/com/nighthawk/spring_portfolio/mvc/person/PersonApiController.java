@@ -1,17 +1,30 @@
 package com.nighthawk.spring_portfolio.mvc.person;
 
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.Getter;
-
-import java.util.*;
-import java.text.SimpleDateFormat;
+import lombok.Setter;
 
 /**
  * This class provides RESTful API endpoints for managing Person entities.
@@ -184,6 +197,44 @@ public ResponseEntity<Object> updatePerson(Authentication authentication, @Reque
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 }
 
+@Getter @Setter
+public class SectionDTO {
+    private String name;
+    private String abbreviation;
+    private int year;
+}
+
+@PostMapping(value = "/person/setSections", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Person> setSections(Authentication authentication, @RequestBody final List<SectionDTO> sections) {
+    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    String email = userDetails.getUsername();
+
+    // Find a person by email
+    Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
+    if (optional.isPresent()) {
+        Person person = optional.get();
+
+        // Get existing sections
+        Collection<PersonSections> existingSections = person.getSections();
+
+        // Update sections
+        for (SectionDTO sectionDTO : sections) { // Iterate over SectionDTO objects
+            // Create new PersonSections using properties from SectionDTO
+            PersonSections newSection = new PersonSections(sectionDTO.getName(), sectionDTO.getAbbreviation(), sectionDTO.getYear());
+            existingSections.add(newSection);  // Add new section
+        }
+
+        // Set and save the updated sections
+        person.setSections(existingSections);
+        repository.save(person);
+
+        // Return Person with updated Sections
+        return new ResponseEntity<>(person, HttpStatus.OK);
+    }
+
+    // Return Bad ID
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
 
 
 
