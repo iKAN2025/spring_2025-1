@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/person/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/person/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/people/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/person/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/person/**").hasAuthority("ROLE_ADMIN")
             )
             .cors(Customizer.withDefaults())
@@ -63,7 +63,6 @@ public class SecurityConfig {
                 .requestMatchers("/mvc/person/delete/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                 .requestMatchers(HttpMethod.POST,"/authenticateForm").permitAll()
-                .requestMatchers(HttpMethod.PUT,"/authenticateForm").permitAll()
                 .requestMatchers("/**").permitAll()
             )
             .formLogin(form -> form 
