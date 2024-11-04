@@ -31,6 +31,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST,"/authenticate").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/api/person/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/person/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/person/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/people/**").authenticated()
@@ -39,6 +40,7 @@ public class SecurityConfig {
             )
             .cors(Customizer.withDefaults())
             .headers(headers -> headers
+                .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "http://127.0.0.1:4100")) // Use// Corrected header
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Credentials", "true"))
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-ExposedHeaders", "*", "Authorization"))
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Headers", "Content-Type", "Authorization", "x-csrf-token"))
@@ -61,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/mvc/person/delete/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.GET,"/login").permitAll()
                 .requestMatchers(HttpMethod.POST,"/authenticateForm").permitAll()
+                .requestMatchers(HttpMethod.PUT,"/authenticateForm").permitAll()
                 .requestMatchers("/**").permitAll()
             )
             .formLogin(form -> form 
