@@ -158,7 +158,7 @@ public class PersonApiController {
 
 
 
-@PutMapping(value = "/person/update", produces = MediaType.APPLICATION_JSON_VALUE)
+@PostMapping(value = "/person/update", produces = MediaType.APPLICATION_JSON_VALUE)
 public ResponseEntity<Object> updatePerson(Authentication authentication, @RequestBody final PersonDto personDto) {
     // Get the email of the current user from the authentication context
     UserDetails userDetails = (UserDetails) authentication.getPrincipal();
