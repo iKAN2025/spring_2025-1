@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-
-<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http;//www.w3.org/1999/xhtml" layout:decorate="~{layouts/base}" lang="en">
-<html lang="en">
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/base}" lang="en">
 <head>
     <title>Person Form</title>
+    <!-- Add Font Awesome for eye icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script>
         function validateForm(event) {
             const password = document.getElementById("password").value;
@@ -14,7 +14,49 @@
                 event.preventDefault(); // Prevent form submission
             }
         }
+
+        // Function to toggle password visibility
+        function togglePasswordVisibility(fieldId, iconId) {
+            var passwordField = document.getElementById(fieldId);
+            var icon = document.getElementById(iconId);
+
+            // Toggle visibility
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        }
     </script>
+    <style>
+        /* Style for the password input container to position the icon next to the field */
+        .password-container {
+            position: relative;
+            display: inline-block;
+            width: auto;
+        }
+
+        .password-container input {
+            padding-right: 30px; /* Add space for the eye icon */
+        }
+
+        .password-container i {
+            position: absolute;
+            right: 5px;  /* Move the icon a few pixels to the right */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        /* Add margin to move the confirm password section down */
+        .confirm-password-container {
+            margin-top: 15px;  /* Adds space between password and confirm password */
+        }
+    </style>
 </head>
 <body>
     <th:block layout:fragment="body" th:remove="tag"> <!-- Page specific body additions -->
@@ -38,20 +80,28 @@
                                 <input type="email" th:field="*{email}" id="email">
                                 <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</small>
                             </div>
-                            <div class="form-group mb-2 mr-sm-2">
+
+                            <!-- Password Field with Eye Icon -->
+                            <div class="form-group mb-2 mr-sm-2 password-container">
                                 <label for="password">Password:</label>
                                 <input type="password" th:field="*{password}" id="password">
+                                <i class="fas fa-eye-slash" id="eye-icon-password" onclick="togglePasswordVisibility('password', 'eye-icon-password')"></i>
                                 <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</small>
                             </div>
-                            <div class="form-group mb-2 mr-sm-2">
+
+                            <!-- Confirm Password Field with Eye Icon (moved down) -->
+                            <div class="form-group mb-2 mr-sm-2 password-container confirm-password-container">
                                 <label for="confirm_password">Confirm Password:</label>
                                 <input type="password" id="confirm_password">
+                                <i class="fas fa-eye-slash" id="eye-icon-confirm-password" onclick="togglePasswordVisibility('confirm_password', 'eye-icon-confirm-password')"></i>
                             </div>
+
                             <div class="input-group mb-2 mr-sm-2">
                                 <label for="dob">Birth Date:</label>
                                 <input type="date" th:field="*{dob}" id="dob">
                                 <small th:if="${#fields.hasErrors('dob')}" th:errors="*{dob}">Birth Date Error</small>
                             </div>
+
                             <button type="submit" class="btn btn-primary">Add</button>
                         </form>
                     </div>
