@@ -1,9 +1,7 @@
 package com.nighthawk.spring_portfolio.mvc.person;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * This class provides RESTful API endpoints for managing Person entities.
@@ -185,7 +182,6 @@ public ResponseEntity<Object> updatePerson(Authentication authentication, @Reque
         if (personDto.getKasmServerNeeded() != null) {
             existingPerson.setKasmServerNeeded(personDto.getKasmServerNeeded());
         }
-
         // Save the updated person back to the repository
         Person updatedPerson = repository.save(existingPerson);
 
@@ -197,57 +193,13 @@ public ResponseEntity<Object> updatePerson(Authentication authentication, @Reque
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 }
 
-@Getter @Setter
-public class SectionDTO {
-    private String name;
-    private String abbreviation;
-    private int year;
-}
-
-@PostMapping(value = "/person/setSections", produces = MediaType.APPLICATION_JSON_VALUE)
-public ResponseEntity<Person> setSections(Authentication authentication, @RequestBody final List<SectionDTO> sections) {
-    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    String email = userDetails.getUsername();
-
-    // Find a person by email
-    Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
-    if (optional.isPresent()) {
-        Person person = optional.get();
-
-        // Get existing sections
-        Collection<PersonSections> existingSections = person.getSections();
-
-        // Update sections
-        for (SectionDTO sectionDTO : sections) { // Iterate over SectionDTO objects
-            // Create new PersonSections using properties from SectionDTO
-            PersonSections newSection = new PersonSections(sectionDTO.getName(), sectionDTO.getAbbreviation(), sectionDTO.getYear());
-            existingSections.add(newSection);  // Add new section
-        }
-
-        // Set and save the updated sections
-        person.setSections(existingSections);
-        repository.save(person);
-
-        // Return Person with updated Sections
-        return new ResponseEntity<>(person, HttpStatus.OK);
-    }
-
-    // Return Bad ID
-    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-}
-
-
-
-
-
-
-
 
     /**
-     * Search for a Person entity by name or email.
+     * Search for a Person newentity by name or email.
      * @param map of a key-value (k,v), the key is "term" and the value is the search term. 
      * @return A ResponseEntity containing a list of Person entities that match the search term.
      */
+
     @PostMapping(value = "/people/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> personSearch(@RequestBody final Map<String,String> map) {
         // extract term from RequestEntity
@@ -275,56 +227,54 @@ public ResponseEntity<Person> setSections(Authentication authentication, @Reques
         }
     *  @return A ResponseEntity containing the Person entity with updated stats, or a NOT_FOUND status if not found.
     */
-    @PostMapping(value = "/person/setStats", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Person> personStats(Authentication authentication, @RequestBody final Map<String,Object> stat_map) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();  // Email is mapped/unmapped to username for Spring Security
+//     @PostMapping(value = "/person/setSections", produces = MediaType.APPLICATION_JSON_VALUE)
+// public ResponseEntity<?> setSections(@AuthenticationPrincipal UserDetails userDetails, @RequestBody final List<SectionDTO> sections) {
+//     // Check if the authentication object is null
+//     if (userDetails == null) {
+//         return ResponseEntity
+//                 .status(HttpStatus.UNAUTHORIZED)
+//                 .body("Error: Authentication object is null. User is not authenticated.");
+//     }
     
-        // Find a person by username
-        Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
-        if (optional.isPresent()) {  // Good ID
-            Person person = optional.get();  // value from findByID
+//     String email = userDetails.getUsername();
     
-            // Get existing stats
-            Map<String, Map<String, Object>> existingStats = person.getStats();
-    
-            // Iterate through each key in the incoming stats
-            for (String key : stat_map.keySet()) {
-                // Extract the stats for this key from the incoming stats
-                Map<String, Object> incomingStats = (Map<String, Object>) stat_map.get(key);
-    
-                // Extract the date and attributes from the incoming stats
-                String date = (String) incomingStats.get("date");
-                Map<String, Object> attributeMap = new HashMap<>(incomingStats);
-                attributeMap.remove("date");
-    
-                // New key test. 
-                if (!existingStats.containsKey(key)) { 
-                    // Add the new key
-                    existingStats.put(key, new HashMap<>());
-                }
-    
-                // Existing date test. 
-                if (existingStats.get(key).containsKey(date)) { // Existing date, update the attributes
-                    // Make a map inside of existingStats to hold the current attributes for the date
-                    Map<String, Object> existingAttributes = (Map<String, Object>) existingStats.get(key).get(date);
-                    // Combine the existing attributes with these new attributes 
-                    existingAttributes.putAll(attributeMap);
-                } else { // New date, add the new date and attributes
-                    existingStats.get(key).put(date, attributeMap);
-                }
-            }
-    
-            // Set and save the updated stats 
-            person.setStats(existingStats);
-            repository.save(person);  // conclude by writing the stats updates to the database
-    
-            // return Person with update to Stats
-            return new ResponseEntity<>(person, HttpStatus.OK);
-        }
-        // return Bad ID
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
-    }
+//     // Manually wrap the result in Optional.ofNullable
+//     Optional<Person> optional = Optional.ofNullable(repository.findByEmail(email));
+//     if (optional.isPresent()) {
+//         Person person = optional.get();
+
+//         // Get existing sections and ensure it is not null
+//         Collection<PersonSections> existingSections = person.getSections();
+//         if (existingSections == null) {
+//             existingSections = new ArrayList<>();
+//         }
+
+//         // Add  sections
+//         for (SectionDTO sectionDTO : sections) {
+//             if (!existingSections.stream().anyMatch(s -> s.getName().equals(sectionDTO.getName()))) {
+//                 PersonSections newSection = new PersonSections(sectionDTO.getName(), sectionDTO.getAbbreviation(), sectionDTO.getYear());
+//                 existingSections.add(newSection);
+//             } else {
+//                 return ResponseEntity
+//                         .status(HttpStatus.CONFLICT)
+//                         .body("Error: Section with name '" + sectionDTO.getName() + "' already exists.");
+//             }
+//         }
+
+//         // Persist updated sections
+//         person.setSections(existingSections);
+//         repository.save(person);
+
+//         // Return updated Person
+//         return ResponseEntity.ok(person);
+//     }
+
+//     // Person not found
+//     return ResponseEntity
+//             .status(HttpStatus.NOT_FOUND)
+//             .body("Error: Person not found with email: " + email);
+// }
+
 
     @PutMapping("/person/{id}")
     public ResponseEntity<Object> updatePerson(@PathVariable long id, @RequestBody PersonDto personDto) {
@@ -351,6 +301,11 @@ public ResponseEntity<Person> setSections(Authentication authentication, @Reques
         // Return NOT_FOUND if the person with the given ID does not exist
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 }
+
+
+
+
+
 
 
 

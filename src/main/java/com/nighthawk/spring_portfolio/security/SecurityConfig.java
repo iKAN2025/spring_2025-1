@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,"/authenticate").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/api/person/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/person/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/person/setSections").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/person/setStats").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/person/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/people/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/**").permitAll()

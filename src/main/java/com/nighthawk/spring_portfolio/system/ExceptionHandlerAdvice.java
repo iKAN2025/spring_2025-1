@@ -20,10 +20,15 @@ public class ExceptionHandlerAdvice {
     } 
     
     @ExceptionHandler(JsonMappingException.class)
-    public ResponseEntity<String> jsonMappingException(JsonMappingException e) {
-        // log exception
+    public ResponseEntity<String> handleJsonMappingException(JsonMappingException e) {
+        // Log the exception details for debugging purposes
+        e.printStackTrace(); // Or use a logger
+    
+        // Return a more informative error message
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("JSON failed to map");
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Invalid JSON format: " + e.getOriginalMessage());
     }
 }
+
+//public class CORSfilter, Security.config
