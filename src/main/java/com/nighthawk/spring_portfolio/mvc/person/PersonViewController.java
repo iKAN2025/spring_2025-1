@@ -38,17 +38,27 @@ public class PersonViewController {
     @param - Person object with @Valid
     @param - BindingResult object
      */
+
     @PostMapping("/create")
-    public String personSave(@Valid Person person, BindingResult bindingResult) {
-        // Validation of Decorated PersonForm attributes
-        if (bindingResult.hasErrors()) {
-            return "person/create";
-        }
-        repository.save(person);
-        repository.addRoleToPerson(person.getEmail(), "ROLE_USER");
-        // Redirect to next step
-        return "redirect:/mvc/person/read";
+    public String personSave(@Valid Person person, BindingResult bindingResult, Model model) {
+    // Validation of Decorated PersonForm attributes
+    if (bindingResult.hasErrors()) {
+        return "person/create";
     }
+
+    // Check if email already exists in the database
+    if (repository.existsByEmail(person.getEmail())) {
+        model.addAttribute("emailError", "This email is already registered.");
+        return "person/create"; // Return to form with error message
+    }
+
+    // Save new person to the database
+    repository.save(person);
+    repository.addRoleToPerson(person.getEmail(), "ROLE_USER");
+
+    // Redirect to the person list page
+    return "redirect:/mvc/person/read";
+}
 
     @GetMapping("/update/{id}")
     public String personUpdate(@PathVariable("id") int id, Model model) {
