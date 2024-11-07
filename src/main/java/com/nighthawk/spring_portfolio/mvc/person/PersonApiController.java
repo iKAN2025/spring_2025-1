@@ -135,8 +135,10 @@ public class PersonApiController {
      * @param personDto
      * @return A ResponseEntity containing a success message if the Person entity is created, or a BAD_REQUEST status if not created.
      */
-    @PostMapping("/person/create")
-    public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
+
+@PostMapping("/person/create")
+public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
+    try {
         // Validate dob input
         Date dob;
         try {
@@ -144,13 +146,24 @@ public class PersonApiController {
         } catch (Exception e) {
             return new ResponseEntity<>(personDto.getDob() + " error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
         }
+
+        // Check if email already exists
+        if (personDetailsService.existsByEmail(personDto.getEmail())) {
+            return new ResponseEntity<>("Email already in use", HttpStatus.BAD_REQUEST);
+        }
+
         // A person object WITHOUT ID will create a new record in the database
         Person person = new Person(personDto.getEmail(), personDto.getPassword(), personDto.getName(), dob, "USER", true, personDetailsService.findRole("USER"));
-
         personDetailsService.save(person);
-        return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
-    }
 
+        return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
+
+    } catch (Exception e) {
+        // Log the error for debugging
+        e.printStackTrace();
+        return new ResponseEntity<>("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 //     * Adds stats to the Person table 
 //     * @param stat_map is a JSON object, example format:
 //        {"health":

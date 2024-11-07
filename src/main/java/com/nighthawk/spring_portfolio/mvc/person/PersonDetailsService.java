@@ -126,5 +126,8 @@ public class PersonDetailsService implements UserDetailsService {  // "implement
             }
         }
     }
+    public boolean existsByEmail(String email) {  // check if email in db
+        return personJpaRepository.existsByEmail(email);
+    }
     
 }
