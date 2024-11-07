@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -138,7 +140,6 @@ public class PersonApiController {
 
 @PostMapping("/person/create")
 public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
-    try {
         // Validate dob input
         Date dob;
         try {
@@ -155,14 +156,7 @@ public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
         // A person object WITHOUT ID will create a new record in the database
         Person person = new Person(personDto.getEmail(), personDto.getPassword(), personDto.getName(), dob, "USER", true, personDetailsService.findRole("USER"));
         personDetailsService.save(person);
-
         return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
-
-    } catch (Exception e) {
-        // Log the error for debugging
-        e.printStackTrace();
-        return new ResponseEntity<>("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 }
 //     * Adds stats to the Person table 
 //     * @param stat_map is a JSON object, example format:
