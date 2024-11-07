@@ -48,7 +48,7 @@ public class PersonViewController {
 
     // Check if email already exists in the database
     if (repository.existsByEmail(person.getEmail())) {
-        model.addAttribute("emailError", "This email is already registered.");
+        model.addAttribute("emailError", "This email is already in use. Please use a different email.");
         return "person/create"; // Return to form with error message
     }
 
