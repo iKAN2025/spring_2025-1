@@ -4,14 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.nighthawk.spring_portfolio.mvc.person.PersonDetailsService;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -52,7 +51,62 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	 */
 	private void handleClientRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 		Optional<String> jwtToken = getJwtTokenFromCookies(request.getCookies());
+
+		if (!jwtToken.isPresent()) {
+			logger.warn("No JWT cookie: " + buildRequestLogMessage(request));
+			chain.doFilter(request, response);
+			return;
+		}
+
+		// If there is a JWT token, extract the username and set the authentication
+		try {
+			String username = jwtTokenUtil.getUsernameFromToken(jwtToken.get());
 	
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = this.personDetailsService.loadUserByUsername(username);
+	
+				if (jwtTokenUtil.validateToken(jwtToken.get(), userDetails)) {
+					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+					logger.warn("Cookie: " + userDetails.getUsername() + " " + userDetails.getAuthorities());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error("JWT Token get error", e);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT Token get error");
+			return;
+		} catch (ExpiredJwtException e) {
+			logger.error("JWT Token has expired", e);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT Token has expired");
+			return;
+		} catch (Exception e) {
+			logger.error("JWT error occurred", e);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT error occurred");
+			return;
+		}
+	
+		chain.doFilter(request, response);
+	
+	}
+
+	private void handleSessionRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+		if(request.getHeader("authorization") == null){
+			logger.warn("No JWT cookie: " + buildRequestLogMessage(request));
+			chain.doFilter(request, response);
+			return;
+		}
+		Cookie[] cookies = new Cookie[1];
+		for(String cookie : request.getHeader("authorization").split(";")){
+			String[] cookieData = cookie.split("=");
+			if (!cookieData[0].trim().equals("jwt_java_spring")){continue;};
+			Cookie generatedCookie = new Cookie(cookieData[0].trim(),cookieData[1]);
+			cookies[0] = generatedCookie;
+			break;
+		}
+		Optional<String> jwtToken = getJwtTokenFromCookies(cookies);
+	
+
 		if (!jwtToken.isPresent()) {
 			logger.warn("No JWT cookie: " + buildRequestLogMessage(request));
 			chain.doFilter(request, response);
@@ -109,7 +163,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		// Else the request is coming from session
 		} else {
 			logger.warn("Session request: " + buildRequestLogMessage(request));
-			chain.doFilter(request, response);
+			handleSessionRequest(request, response,chain);
 			return;
 		}
 	}
