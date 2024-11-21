@@ -9,8 +9,8 @@ import java.util.Optional;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -260,12 +260,6 @@ public ResponseEntity<Object> updatePerson(Authentication authentication, @Reque
         }
         if (personDto.getName() != null) {
             existingPerson.setName(personDto.getName());
-        }
-        if (personDto.getPfp() != null) {
-            existingPerson.setPfp(personDto.getPfp());
-        }
-        if (personDto.getKasmServerNeeded() != null) {
-            existingPerson.setKasmServerNeeded(personDto.getKasmServerNeeded());
         }
         // Save the updated person back to the repository
         Person updatedPerson = repository.save(existingPerson);
