@@ -46,7 +46,7 @@
                         </tr>
                     </table>
                     <!--Update Form -->
-                    <form class="form-inline" action="#" th:action="@{/mvc/person/update/{id}(id=${person.id})}" th:object="${person}" method="POST">
+                    <form class="form-inline" action="#" th:action="@{/mvc/person/update/{id}(id=${person.id})}" th:object="${person}" method="PUT">
                         <!-- Hidden Section, stuff we need to reference to preserve on Update -->
                         <div class="form-group mb-2 mr-sm-2">
                             <label for="id" hidden></label>

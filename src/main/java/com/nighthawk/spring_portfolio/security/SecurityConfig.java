@@ -36,10 +36,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/person/setSections").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/person/setStats").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/person/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/person/update/").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/people/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/person/**").hasAuthority("ROLE_ADMIN")
-            )
+
+                )
             .cors(Customizer.withDefaults())
             .headers(headers -> headers
                 .addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "http://127.0.0.1:4100")) // Use// Corrected header
